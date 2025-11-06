@@ -160,25 +160,38 @@
       backdrop-filter: blur(5px);
     }
 
-    /* ✅ 点击播放按钮样式 */
-    #play-btn {
+    /* ✅ 圆形漂浮播放/暂停按钮 */
+    #music-btn {
       position: fixed;
       bottom: 40px;
       right: 40px;
-      z-index: 999;
-      background: rgba(0,0,0,0.5);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
       color: white;
-      padding: 12px 25px;
-      border-radius: 12px;
-      font-size: 20px;
+      font-size: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 0 10px rgba(255,150,150,0.6);
-      transition: 0.3s;
+      z-index: 999;
+      box-shadow: 0 0 15px rgba(255,120,120,0.9);
+      backdrop-filter: blur(6px);
+      transition: 0.25s;
+      animation: float 3s ease-in-out infinite;
     }
-    #play-btn:hover {
+
+    #music-btn:hover {
+      transform: scale(1.15);
       background: rgba(255,80,80,0.85);
-      box-shadow: 0 0 20px rgba(255,120,120,1);
+      box-shadow: 0 0 25px rgba(255,120,120,1);
+    }
+
+    @keyframes float {
+      0%   { transform: translateY(0px); }
+      50%  { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
     }
   </style>
 </head>
@@ -206,38 +219,39 @@
   <!-- ✅ 背景音乐 -->
   <audio id="bgm" src="music.mp3" autoplay loop muted></audio>
 
-<script>
-window.addEventListener("load", () => {
-  const bgm = document.getElementById("bgm");
-
-  // 尝试静音自动播放
-  bgm.play().then(() => {
-    // 1 秒后自动打开声音（模拟“静音自动播放”）
-    setTimeout(() => {
-      bgm.muted = false;
-      bgm.volume = 1.0;
-    }, 1000);
-  }).catch(err => {
-    console.log("自动播放被拦截，需要用户点击:", err);
-  });
-});
-</script>
-
-  <!-- ✅ 手动点击播放按钮 -->
-  <div id="play-btn">点击播放音乐 🎵</div>
+  <!-- ✅ 圆形播放/暂停按钮 -->
+  <div id="music-btn">▶️</div>
 
   <script>
-    document.getElementById("play-btn").addEventListener("click", function () {
-      const audio = document.getElementById("bgm");
-      audio.volume = 1.0;
-      audio.play();
-      this.innerText = "音乐播放中 🎶";
-      this.style.background = "rgba(0,0,0,0.3)";
-      this.style.cursor = "default";
-      this.style.pointerEvents = "none";
+    /* ✅ 自动播放：静音 → 恢复声音 */
+    window.addEventListener("load", () => {
+      const bgm = document.getElementById("bgm");
+
+      bgm.play().then(() => {
+        setTimeout(() => {
+          bgm.muted = false;
+          bgm.volume = 1.0;
+          document.getElementById("music-btn").innerText = "⏸";
+        }, 800);
+      }).catch(err => {
+        console.log("自动播放被阻止，需要用户点击:", err);
+      });
     });
 
-    // 自动粒子
+    /* ✅ 按钮播放/暂停切换 */
+    document.getElementById("music-btn").addEventListener("click", function () {
+      const audio = document.getElementById("bgm");
+
+      if (audio.paused) {
+        audio.play();
+        this.innerText = "⏸";
+      } else {
+        audio.pause();
+        this.innerText = "▶️";
+      }
+    });
+
+    /* ✅ 自动粒子生成 */
     document.addEventListener('DOMContentLoaded', function() {
       const container = document.querySelector('.content');
       const count = 15;
@@ -254,5 +268,6 @@ window.addEventListener("load", () => {
       }
     });
   </script>
+
 </body>
 </html>
