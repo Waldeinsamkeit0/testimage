@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>背景轮播</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: black;
+}
+
+/* ✅ 背景图层（放在 z-index:0，不会变黑） */
+.bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: contain;   /* 完整显示图片 */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: black;
+  transition: opacity 2s ease-in-out;
+  opacity: 0;
+  z-index: 0;   /* ✅ 不再用 -1 */
+}
+
+#bg1 { opacity: 1; }
+
+/* ✅ 内容层（粒子） */
+.content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ✅ 粒子 */
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  animation: twinkle 3s infinite ease-in-out;
+}
+
+@keyframes twinkle {
+  0% { transform: scale(0); opacity: 0; }
+  30% { transform: scale(1); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* ✅ 圆形音乐按钮 */
+#music-btn {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 60px;
+  height: 60px;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  font-size: 30px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 0 15px rgba(255,120,120,0.9);
+}
+
+/* ✅ 遮罩 */
+#unlock-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 4;
+  cursor: pointer;
+}
+
+.unlock-text {
+  color: white;
+  font-size: 28px;
+  padding: 20px 40px;
+  background: rgba(255,80,80,0.85);
+  border-radius: 18px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ✅ 背景层（不会再黑屏） -->
+<div id="bg1" class="bg-slide"></div>
+<div id="bg2" class="bg-slide"></div>
+
+<!-- ✅ 点击开启音乐遮罩 -->
+<div id="unlock-mask"><div class="unlock-text">点击开启音乐 🎵</div></div>
+
+<!-- ✅ 粒子层 -->
+<div class="content"></div>
+
+<!-- ✅ 音乐 -->
+<audio id="bgm" src="frxz.mp3" autoplay loop muted></audio>
+
+<!-- ✅ 按钮 -->
+<div id="music-btn">▶️</div>
+
+<script>
+/* ✅ 背景图轮播 */
+const bg1 = document.getElementById("bg1");
+const bg2 = document.getElementById("bg2");
+const imgs = ["mk1.jpg", "mk2.jpg"];   // ✅ 确保文件存在！
+let index = 0;
+
+bg1.style.backgroundImage = `url(${imgs[0]})`;
+bg2.style.backgroundImage = `url(${imgs[1]})`;
+
+setInterval(() => {
+  index = (index + 1) % imgs.length;
+  if (bg1.style.opacity === "1") {
+    bg2.style.backgroundImage = `url(${imgs[index]})`;
+    bg2.style.opacity = "1";
+    bg1.style.opacity = "0";
+  } else {
+    bg1.style.backgroundImage = `url(${imgs[index]})`;
+    bg1.style.opacity = "1";
+    bg2.style.opacity = "0";
+  }
+}, 6000);
+
+/* ✅ 点击开启声音 */
+document.getElementById("unlock-mask").onclick = function () {
+  const bgm = document.getElementById("bgm");
+  bgm.muted = false;
+  bgm.play();
+  document.getElementById("music-btn").innerText = "⏸";
+
+  this.style.opacity = "0";
+  this.style.transition = ".8s";
+  setTimeout(() => this.remove(), 800);
+};
+
+/* ✅ 播放按钮 */
+document.getElementById("music-btn").onclick = function () {
+  const bgm = document.getElementById("bgm");
+  if (bgm.paused) {
+    bgm.play();
+    this.innerText = "⏸";
+  } else {
+    bgm.pause();
+    this.innerText = "▶️";
+  }
+};
+
+/* ✅ 粒子 */
+const content = document.querySelector(".content");
+for (let i = 0; i < 15; i++) {
+  const p = document.createElement("div");
+  p.className = "particle";
+  p.style.setProperty("--x", `${(Math.random() - 0.5) * 400}px`);
+  p.style.setProperty("--y", `${(Math.random() - 0.5) * 400}px`);
+  p.style.animationDelay = `${Math.random() * 5}s`;
+  content.appendChild(p);
+}
+</script>
+
+</body>
+</html>
