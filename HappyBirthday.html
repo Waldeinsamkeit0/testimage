@@ -103,7 +103,7 @@
         audio.play().then(() => {
             btn.style.display = "none";   // 隐藏按钮
             mask.style.display = "none";  // 点击提示隐藏
-            setInterval(changeBackground, 5000);
+            setInterval(changeBackground, 3000);
         }).catch(err => {
             alert("⚠ 浏览器阻止播放，请手动点击按钮允许播放音乐。");
         });
@@ -115,3 +115,4 @@
 
 </body>
 </html>
+
